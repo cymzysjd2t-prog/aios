@@ -7,8 +7,8 @@
     "start": "tsx src/index.ts"
   },
   "dependencies": {
-    "@aios/agent-core": "workspace:*",
-    "@aios/db": "workspace:*",
+    "@aios/agent-core": "*",
+    "@aios/db": "*",
     "bullmq": "^5.12.12",
     "ioredis": "^5.4.1"
   },

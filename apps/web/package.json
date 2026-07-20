@@ -10,8 +10,8 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^5.7.5",
-    "@aios/agent-core": "workspace:*",
-    "@aios/db": "workspace:*",
+    "@aios/agent-core": "*",
+    "@aios/db": "*",
     "stripe": "^16.9.0",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",

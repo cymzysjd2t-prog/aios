@@ -2,7 +2,12 @@
   "name": "aios",
   "private": true,
   "packageManager": "pnpm@9.0.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
+    "postinstall": "npx prisma generate --schema=packages/db/prisma/schema.prisma",
     "dev": "pnpm --filter web dev",
     "worker:dev": "pnpm --filter @aios/worker dev",
     "build": "pnpm --filter web build",
