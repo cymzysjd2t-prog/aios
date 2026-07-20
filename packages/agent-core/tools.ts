@@ -307,7 +307,11 @@ export async function executeTool(call: ToolCall, ctx: ToolExecutionContext): Pr
 
     case "create_business_plan": {
       const roadmap = (call.input.roadmap as { title: string }[]) ?? [];
-      const deployRoles = (call.input.deployRoles as string[]) ?? [];
+      const deployRoles = Array.isArray(call.input.deployRoles)
+        ? (call.input.deployRoles as string[])
+        : call.input.deployRoles
+          ? [call.input.deployRoles as string]
+          : [];
 
       await prisma.business.update({
         where: { id: ctx.businessId },
@@ -315,7 +319,11 @@ export async function executeTool(call: ToolCall, ctx: ToolExecutionContext): Pr
           pitch: call.input.positioning as string,
           branding: {
             targetAudience: (call.input.targetAudience as string) ?? "",
-            competitors: (call.input.competitors as string[]) ?? [],
+            competitors: Array.isArray(call.input.competitors)
+              ? (call.input.competitors as string[])
+              : call.input.competitors
+                ? [call.input.competitors as string]
+                : [],
             businessModel: (call.input.businessModel as string) ?? "",
             primaryColor: (call.input.brandPrimaryColor as string) ?? "#6C5CE7",
             tone: (call.input.brandTone as string) ?? null,

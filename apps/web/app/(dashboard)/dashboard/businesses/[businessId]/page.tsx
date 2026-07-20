@@ -30,11 +30,19 @@ export default async function BusinessDashboardPage({
 
   const branding = business.branding as {
     targetAudience?: string;
-    competitors?: string[];
+    competitors?: string[] | string;
     businessModel?: string;
     primaryColor?: string;
     tone?: string;
   } | null;
+
+  // Défense en profondeur : certaines entrées historiques ont pu stocker competitors
+  // comme une chaîne simple plutôt qu'une liste (avant durcissement de la validation).
+  const competitorsList: string[] = Array.isArray(branding?.competitors)
+    ? branding!.competitors
+    : branding?.competitors
+      ? [branding.competitors]
+      : [];
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-6">
@@ -59,10 +67,10 @@ export default async function BusinessDashboardPage({
               <p className="mt-1 text-sm text-primary">{branding.businessModel}</p>
             </div>
           )}
-          {branding.competitors && branding.competitors.length > 0 && (
+          {competitorsList.length > 0 && (
             <div className="rounded-lg border border-border bg-surface p-4">
               <p className="text-xs text-muted">Concurrents identifiés</p>
-              <p className="mt-1 text-sm text-primary">{branding.competitors.join(", ")}</p>
+              <p className="mt-1 text-sm text-primary">{competitorsList.join(", ")}</p>
             </div>
           )}
         </div>
