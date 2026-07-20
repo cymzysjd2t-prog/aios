@@ -4,7 +4,7 @@ export { TOOL_REGISTRY, executeTool } from "./tools";
 export { buildSystemPrompt } from "./prompt";
 export type { RunAgentParams } from "./orchestrator";
 export type { ToolExecutionContext } from "./tools";
-export { AGENT_RUN_QUEUE, getAgentRunQueue } from "./queue";
+export { AGENT_RUN_QUEUE, getAgentRunQueue, getQueueConnection } from "./queue";
 export type { AgentRunJobData } from "./queue";
 export { enqueueRoleRun } from "./dispatch";
 export { emitEvent } from "./events";
