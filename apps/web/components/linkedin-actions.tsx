@@ -5,11 +5,11 @@ import { useRouter } from "next/navigation";
 import { Linkedin } from "lucide-react";
 
 export function ConnectLinkedInButton({ businessId }: { businessId: string }) {
+  const href = `/api/integrations/linkedin/connect?businessId=${businessId}`;
+  const linkClass =
+    "inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-xs text-secondary transition-colors hover:border-border-strong hover:text-primary";
   return (
-    
-      href={`/api/integrations/linkedin/connect?businessId=${businessId}`}
-      className="inline-flex items-center gap-2 rounded-md border border-border px-3 py-1.5 text-xs text-secondary transition-colors hover:border-border-strong hover:text-primary"
-    >
+    <a href={href} className={linkClass}>
       <Linkedin className="h-3.5 w-3.5" />
       Connecter LinkedIn
     </a>
