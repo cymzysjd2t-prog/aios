@@ -1,0 +1,19 @@
+{
+  "name": "aios",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "dev": "pnpm --filter web dev",
+    "worker:dev": "pnpm --filter @aios/worker dev",
+    "build": "pnpm --filter web build",
+    "db:generate": "pnpm --filter @aios/db generate",
+    "db:migrate": "pnpm --filter @aios/db migrate",
+    "db:seed": "pnpm --filter @aios/db seed",
+    "db:studio": "pnpm --filter @aios/db studio",
+    "test": "pnpm --filter @aios/agent-core test"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4",
+    "prettier": "^3.3.3"
+  }
+}

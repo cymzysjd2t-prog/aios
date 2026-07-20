@@ -1,0 +1,334 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Plan {
+  FREE
+  PRO
+  BUSINESS
+  ENTERPRISE
+}
+
+enum AgentRole {
+  CEO
+  PM
+  DEV
+  DESIGNER
+  MARKETING
+  SALES
+  SEO
+  SUPPORT
+  FINANCE
+  LEGAL
+  DATA
+  AUTOMATION
+}
+
+enum AgentStatus {
+  IDLE
+  RUNNING
+  WAITING_APPROVAL
+  ERROR
+}
+
+enum RunStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+  NEEDS_APPROVAL
+}
+
+enum MemoryKind {
+  FACT
+  PREFERENCE
+  DECISION
+  SUMMARY
+}
+
+enum ProjectType {
+  WEB_APP
+  MOBILE_APP
+  CHROME_EXT
+  DISCORD_BOT
+  TELEGRAM_BOT
+  API
+  AUTOMATION
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+}
+
+enum LeadStatus {
+  NEW
+  QUALIFIED
+  CONTACTED
+  WON
+  LOST
+}
+
+model Lead {
+  id         String     @id @default(cuid())
+  businessId String
+  business   Business   @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name       String
+  email      String
+  company    String?
+  source     String?
+  status     LeadStatus @default(NEW)
+  score      Int        @default(0)
+  notes      String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  @@unique([businessId, email])
+  @@index([businessId, status])
+}
+
+enum TicketStatus {
+  OPEN
+  ANSWERED
+  ESCALATED
+  RESOLVED
+}
+
+enum MessageSender {
+  CUSTOMER
+  AGENT
+  HUMAN
+}
+
+model SupportTicket {
+  id            String          @id @default(cuid())
+  businessId    String
+  business      Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customerEmail String
+  subject       String
+  status        TicketStatus    @default(OPEN)
+  messages      TicketMessage[]
+  createdAt     DateTime        @default(now())
+
+  @@index([businessId, status])
+}
+
+model TicketMessage {
+  id       String        @id @default(cuid())
+  ticketId String
+  ticket   SupportTicket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  sender   MessageSender
+  body     String
+  /// true = note interne (ex: raison d'escalade), invisible pour le client
+  internal Boolean       @default(false)
+  createdAt DateTime     @default(now())
+
+  @@index([ticketId])
+}
+
+model KnowledgeArticle {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  title      String
+  content    String
+  createdAt  DateTime @default(now())
+
+  @@index([businessId])
+}
+
+enum ContentType {
+  SEO_ARTICLE
+  LINKEDIN_POST
+  TWEET
+  EMAIL
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model ContentPiece {
+  id              String        @id @default(cuid())
+  businessId      String
+  business        Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  type            ContentType
+  title           String
+  body            String
+  status          ContentStatus @default(DRAFT)
+  createdByAgentId String?
+  createdAt       DateTime      @default(now())
+
+  @@index([businessId, createdAt])
+}
+
+model Organization {
+  id               String         @id @default(cuid())
+  ownerUserId      String?        @unique
+  name             String
+  plan             Plan           @default(FREE)
+  stripeCustomerId String?
+  businesses       Business[]
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+model Business {
+  id              String          @id @default(cuid())
+  orgId           String
+  org             Organization    @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  name            String
+  pitch           String?
+  branding        Json?
+  stripeAccountId String?
+  agents          AgentInstance[]
+  projects        Project[]
+  workflows  Workflow[]
+  contents   ContentPiece[]
+  tickets    SupportTicket[]
+  leads      Lead[]
+  knowledge  KnowledgeArticle[]
+  kpis       KpiSnapshot[]
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  @@index([orgId])
+}
+
+model AgentDefinition {
+  id            String          @id @default(cuid())
+  role          AgentRole
+  name          String
+  systemPrompt  String
+  tools         Json
+  defaultModel  String
+  instances     AgentInstance[]
+}
+
+model AgentInstance {
+  id            String          @id @default(cuid())
+  businessId    String
+  business      Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  definitionId  String
+  definition    AgentDefinition @relation(fields: [definitionId], references: [id])
+  memory        AgentMemory[]
+  runs          AgentRun[]
+  status        AgentStatus     @default(IDLE)
+  budgetUsedUsd Float           @default(0)
+  score         Float           @default(0)
+  createdAt     DateTime        @default(now())
+
+  @@index([businessId])
+}
+
+model AgentMemory {
+  id        String        @id @default(cuid())
+  agentId   String
+  agent     AgentInstance @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  kind      MemoryKind
+  content   String
+  createdAt DateTime      @default(now())
+
+  @@index([agentId])
+}
+
+model AgentRun {
+  id         String       @id @default(cuid())
+  agentId    String
+  agent      AgentInstance @relation(fields: [agentId], references: [id], onDelete: Cascade)
+  trigger    String
+  input      Json
+  steps      AgentStep[]
+  status     RunStatus    @default(PENDING)
+  costUsd    Float        @default(0)
+  startedAt  DateTime     @default(now())
+  finishedAt DateTime?
+
+  @@index([agentId])
+}
+
+model AgentStep {
+  id        String   @id @default(cuid())
+  runId     String
+  run       AgentRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+  type      String
+  payload   Json
+  createdAt DateTime @default(now())
+
+  @@index([runId])
+}
+
+model Project {
+  id         String      @id @default(cuid())
+  businessId String
+  business   Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  type       ProjectType
+  name       String
+  repoUrl    String?
+  status     String      @default("En cours")
+  tasks      Task[]
+  createdAt  DateTime    @default(now())
+
+  @@index([businessId])
+}
+
+model Task {
+  id              String     @id @default(cuid())
+  projectId       String
+  project         Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignedAgentId String?
+  title           String
+  status          TaskStatus @default(TODO)
+  priority        Int        @default(0)
+  createdAt       DateTime   @default(now())
+
+  @@index([projectId])
+}
+
+model Workflow {
+  id         String        @id @default(cuid())
+  businessId String
+  business   Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  name       String
+  trigger    Json
+  steps      Json
+  isActive   Boolean       @default(true)
+  runs       WorkflowRun[]
+  createdAt  DateTime      @default(now())
+
+  @@index([businessId])
+}
+
+model WorkflowRun {
+  id           String   @id @default(cuid())
+  workflowId   String
+  workflow     Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  eventPayload Json
+  createdAt    DateTime @default(now())
+
+  @@index([workflowId])
+}
+
+model KpiSnapshot {
+  id         String   @id @default(cuid())
+  businessId String
+  business   Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  date       DateTime
+  mrr        Float?
+  arr        Float?
+  cac        Float?
+  ltv        Float?
+  churn      Float?
+  traffic    Int?
+
+  @@unique([businessId, date])
+  @@index([businessId, date])
+}

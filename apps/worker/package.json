@@ -1,0 +1,19 @@
+{
+  "name": "@aios/worker",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@aios/agent-core": "workspace:*",
+    "@aios/db": "workspace:*",
+    "bullmq": "^5.12.12",
+    "ioredis": "^5.4.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.1",
+    "typescript": "^5.5.4"
+  }
+}

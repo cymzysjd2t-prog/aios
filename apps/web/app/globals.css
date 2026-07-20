@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Fond légèrement bleuté plutôt que noir pur — évite l'effet "OLED générique" */
+  --bg-base: 240 13% 5%;
+  --bg-surface: 240 12% 7%;
+  --bg-surface-elevated: 240 10% 10%;
+
+  --border: 240 8% 16%;
+  --border-strong: 240 8% 22%;
+
+  --text-primary: 240 20% 96%;
+  --text-secondary: 240 6% 58%;
+  --text-muted: 240 6% 38%;
+
+  /* Violet électrique — accent de marque, distinct du orange/vert générique */
+  --accent: 249 72% 63%;
+  --accent-hover: 249 82% 70%;
+
+  /* États des agents */
+  --agent-idle: 240 6% 38%;
+  --agent-running: 158 64% 48%;
+  --agent-error: 0 72% 58%;
+
+  --warning: 36 92% 55%;
+  --danger: 0 72% 58%;
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+body {
+  background: hsl(var(--bg-base));
+  color: hsl(var(--text-primary));
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+}
+
+.glass {
+  background: hsl(var(--bg-surface-elevated) / 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid hsl(var(--border) / 0.8);
+}
+
+::selection {
+  background: hsl(var(--accent) / 0.3);
+}
+
+/* Scrollbar discrète, cohérente avec le thème sombre */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border-strong));
+  border-radius: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
