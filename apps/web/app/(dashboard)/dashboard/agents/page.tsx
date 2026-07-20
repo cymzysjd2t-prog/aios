@@ -91,7 +91,7 @@ export default async function AgentsPage() {
                   <td className="px-5 py-3 font-mono text-secondary">{a._count.runs}</td>
                   <td className="px-5 py-3 font-mono text-secondary">{a.budgetUsedUsd.toFixed(3)} $</td>
                   <td className="max-w-xs truncate px-5 py-3 text-xs text-muted">
-                    {a.runs[0] ? ((a.runs[0].input as { goal?: string })?.goal ?? "—") : "Jamais exécuté"}
+                    {(a.runs[0]?.input as { goal?: string } | undefined)?.goal ?? (a.runs[0] ? "—" : "Jamais exécuté")}
                   </td>
                 </tr>
               ))}

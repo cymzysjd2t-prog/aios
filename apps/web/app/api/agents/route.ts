@@ -9,8 +9,6 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const businessId = searchParams.get("businessId") ?? DEMO_BUSINESS_ID;
 
-  // La démo reste lisible par tout utilisateur connecté (données de démonstration partagées) ;
-  // toute autre entreprise exige la propriété.
   if (businessId !== DEMO_BUSINESS_ID) {
     try {
       await requireBusinessAccess(businessId);
@@ -31,21 +29,24 @@ export async function GET(req: Request) {
 
   const deployedRoles = new Set(instances.map((i) => i.definition.role));
 
-  const deployed = instances.map((instance) => ({
-    id: instance.id,
-    role: instance.definition.role,
-    name: instance.definition.name,
-    status: instance.status,
-    budgetUsedUsd: instance.budgetUsedUsd,
-    lastRun: instance.runs[0]
-      ? {
-          status: instance.runs[0].status,
-          goal: (instance.runs[0].input as { goal?: string })?.goal ?? null,
-          startedAt: instance.runs[0].startedAt,
-        }
-      : null,
-    deployed: true,
-  }));
+  const deployed = instances.map((instance) => {
+    const latestRun = instance.runs[0];
+    return {
+      id: instance.id,
+      role: instance.definition.role,
+      name: instance.definition.name,
+      status: instance.status,
+      budgetUsedUsd: instance.budgetUsedUsd,
+      lastRun: latestRun
+        ? {
+            status: latestRun.status,
+            goal: (latestRun.input as { goal?: string })?.goal ?? null,
+            startedAt: latestRun.startedAt,
+          }
+        : null,
+      deployed: true,
+    };
+  });
 
   const notDeployed = AGENT_DEFINITIONS.filter((def) => !deployedRoles.has(def.role)).map((def) => ({
     id: `catalog-${def.role}`,

@@ -19,7 +19,6 @@ export default async function MarketplacePage() {
     orderBy: { createdAt: "desc" },
   });
 
-  // Pour marquer "déjà déployé partout" : on compte les déploiements par rôle.
   const deployedByRole = await prisma.agentInstance.groupBy({
     by: ["definitionId"],
     where: { business: { orgId: org.id } },
@@ -92,7 +91,7 @@ export default async function MarketplacePage() {
         </div>
       </section>
 
-      {businesses.length > 0 && (
+      {businesses[0] && (
         <p className="text-xs text-muted">
           Astuce : pour installer un workflow, va sur{" "}
           <Link href={`/dashboard/businesses/${businesses[0].id}/automation`} className="text-accent hover:underline">
