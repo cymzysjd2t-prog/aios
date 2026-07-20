@@ -86,6 +86,8 @@ export async function emitEvent(
       await executeAction(action, businessId, payload);
     }
 
-    await prisma.workflowRun.create({ data: { workflowId: workflow.id, eventPayload: payload } });
+    await prisma.workflowRun.create({
+      data: { workflowId: workflow.id, eventPayload: JSON.parse(JSON.stringify(payload)) },
+    });
   }
 }

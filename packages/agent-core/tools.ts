@@ -174,7 +174,11 @@ export interface ToolExecutionContext {
  */
 export async function executeTool(call: ToolCall, ctx: ToolExecutionContext): Promise<void> {
   await prisma.agentStep.create({
-    data: { runId: ctx.runId, type: "tool_call", payload: { name: call.name, input: call.input } },
+    data: {
+      runId: ctx.runId,
+      type: "tool_call",
+      payload: { name: call.name, input: JSON.parse(JSON.stringify(call.input)) },
+    },
   });
 
   // Validation défensive de l'input émis par le LLM avant toute écriture en base.
