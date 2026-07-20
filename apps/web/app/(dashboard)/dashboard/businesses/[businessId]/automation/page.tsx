@@ -49,6 +49,7 @@ export default async function AutomationPage({ params }: { params: { businessId:
           {installed.map((w) => {
             const steps = w.steps as unknown as WorkflowAction[];
             const trigger = w.trigger as unknown as WorkflowTrigger;
+            const latestRun = w.runs[0];
             return (
               <Card key={w.id}>
                 <div className="mb-2 flex items-center justify-between gap-3">
@@ -76,11 +77,11 @@ export default async function AutomationPage({ params }: { params: { businessId:
                     </li>
                   ))}
                 </ul>
-                {w.runs.length > 0 && (
+                {latestRun && (
                   <div className="mt-3 flex items-center gap-1.5 border-t border-border pt-2 text-xs text-muted">
                     <Zap className="h-3 w-3" />
                     Déclenché {w.runs.length} fois récemment — dernière fois{" "}
-                    {new Date(w.runs[0].createdAt).toLocaleString("fr-FR", {
+                    {new Date(latestRun.createdAt).toLocaleString("fr-FR", {
                       day: "numeric",
                       month: "short",
                       hour: "2-digit",
