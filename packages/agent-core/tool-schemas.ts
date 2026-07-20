@@ -32,12 +32,16 @@ export const TOOL_INPUT_SCHEMAS: Record<string, z.ZodTypeAny> = {
   create_business_plan: z.object({
     positioning: z.string().min(1),
     targetAudience: z.string().min(1),
-    competitors: z.array(z.string()).optional(),
+    competitors: z
+      .union([z.array(z.string()), z.string().transform((s) => (s ? [s] : []))])
+      .optional(),
     businessModel: z.string().min(1),
     brandPrimaryColor: z.string().optional(),
     brandTone: z.string().optional(),
     roadmap: z.array(z.object({ title: z.string().min(1) })).min(1),
-    deployRoles: z.array(z.string()).optional(),
+    deployRoles: z
+      .union([z.array(z.string()), z.string().transform((s) => (s ? [s] : []))])
+      .optional(),
   }),
 
   open_pull_request: z.object({
@@ -64,10 +68,8 @@ export function validateToolInput(
   if (!schema) return { ok: true };
   const result = schema.safeParse(input);
   if (result.success) return { ok: true };
-  if (result.error.issues.length === 0) {
-    return { ok: false, error: `Input invalide pour ${toolName}.` };
-  }
-  const firstIssue = result.error.issues[0]!;
+  const firstIssue = result.error.issues[0];
+  if (!firstIssue) return { ok: false, error: `Input invalide pour ${toolName}.` };
   return {
     ok: false,
     error: `Input invalide pour ${toolName} : ${firstIssue.path.join(".")} — ${firstIssue.message}`,
