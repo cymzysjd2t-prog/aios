@@ -4,10 +4,16 @@ import { z } from "zod";
  * Le modèle peut renvoyer un input d'outil malformé (champ manquant, type inattendu, enum hors
  * liste). Sans validation, ça provoque une erreur Prisma opaque au milieu d'un run. Ces schémas
  * valident l'input AVANT toute écriture en base et produisent un message d'erreur clair.
- * On ne valide que les outils qui écrivent des données structurées ; les outils libres
- * (record_decision, delegate_to_agent) n'en ont pas besoin.
+ * On ne valide pas record_decision (contenu libre, sans conséquence si vide). delegate_to_agent
+ * est en revanche validé : une instruction manquante ou vide provoquerait un job silencieusement
+ * cassé plus loin dans la chaîne (l'appel à Claude échouerait avec un message opaque).
  */
 export const TOOL_INPUT_SCHEMAS: Record<string, z.ZodTypeAny> = {
+  delegate_to_agent: z.object({
+    role: z.string().min(1),
+    instruction: z.string().min(1),
+  }),
+
   qualify_lead: z.object({
     name: z.string().min(1),
     email: z.string().email(),
