@@ -61,10 +61,13 @@ export function validateToolInput(
   input: unknown
 ): { ok: true } | { ok: false; error: string } {
   const schema = TOOL_INPUT_SCHEMAS[toolName];
-  if (!schema) return { ok: true }; // pas de schéma = pas de validation requise
+  if (!schema) return { ok: true };
   const result = schema.safeParse(input);
   if (result.success) return { ok: true };
-  const firstIssue = result.error.issues[0];
+  if (result.error.issues.length === 0) {
+    return { ok: false, error: `Input invalide pour ${toolName}.` };
+  }
+  const firstIssue = result.error.issues[0]!;
   return {
     ok: false,
     error: `Input invalide pour ${toolName} : ${firstIssue.path.join(".")} — ${firstIssue.message}`,
