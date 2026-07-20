@@ -40,7 +40,7 @@ const config: Config = {
         glass: "16px",
       },
       keyframes: {
-        pulse-dot: {
+        "pulse-dot": {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.4" },
         },
