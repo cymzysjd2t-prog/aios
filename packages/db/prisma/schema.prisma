@@ -189,6 +189,9 @@ model Business {
   pitch           String?
   branding        Json?
   stripeAccountId String?
+  linkedinAccessToken          String?
+  linkedinAccessTokenExpiresAt DateTime?
+  linkedinAuthorUrn            String?
   agents          AgentInstance[]
   projects        Project[]
   workflows  Workflow[]

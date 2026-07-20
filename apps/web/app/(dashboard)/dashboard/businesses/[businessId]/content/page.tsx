@@ -4,7 +4,8 @@ import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CopyButton } from "@/components/copy-button";
-import { ArrowLeft, FileText } from "lucide-react";
+import { ConnectLinkedInButton, PublishLinkedInButton } from "@/components/linkedin-actions";
+import { ArrowLeft, FileText, Linkedin } from "lucide-react";
 
 const typeLabel: Record<string, string> = {
   SEO_ARTICLE: "Article SEO",
@@ -13,7 +14,13 @@ const typeLabel: Record<string, string> = {
   EMAIL: "Email",
 };
 
-export default async function ContentPage({ params }: { params: { businessId: string } }) {
+export default async function ContentPage({
+  params,
+  searchParams,
+}: {
+  params: { businessId: string };
+  searchParams: { linkedin?: string };
+}) {
   const business = await prisma.business.findUnique({ where: { id: params.businessId } });
   if (!business) notFound();
 
@@ -21,6 +28,8 @@ export default async function ContentPage({ params }: { params: { businessId: st
     where: { businessId: params.businessId },
     orderBy: { createdAt: "desc" },
   });
+
+  const linkedinConnected = Boolean(business.linkedinAccessToken);
 
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-6">
@@ -38,6 +47,30 @@ export default async function ContentPage({ params }: { params: { businessId: st
         </p>
       </div>
 
+      <Card className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Linkedin className="h-4 w-4 text-accent" strokeWidth={1.75} />
+          <div>
+            <p className="text-sm text-primary">LinkedIn</p>
+            <p className="text-xs text-muted">
+              {linkedinConnected
+                ? "Connecté — les posts peuvent être publiés directement."
+                : "Non connecté — connecte un compte pour publier directement depuis ici."}
+            </p>
+          </div>
+        </div>
+        {linkedinConnected ? (
+          <Badge variant="success">Connecté</Badge>
+        ) : (
+          <ConnectLinkedInButton businessId={business.id} />
+        )}
+      </Card>
+      {searchParams.linkedin === "error" && (
+        <p className="text-xs text-danger">
+          La connexion LinkedIn a échoué. Vérifie la configuration (LINKEDIN_CLIENT_ID/SECRET) et réessaie.
+        </p>
+      )}
+
       {contents.length === 0 ? (
         <Card className="flex flex-col items-center gap-3 py-12 text-center">
           <FileText className="h-8 w-8 text-muted" strokeWidth={1.5} />
@@ -54,6 +87,7 @@ export default async function ContentPage({ params }: { params: { businessId: st
               <div className="mb-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <Badge>{typeLabel[c.type] ?? c.type}</Badge>
+                  {c.status === "PUBLISHED" && <Badge variant="success">Publié</Badge>}
                   <span className="text-xs text-muted">
                     {new Date(c.createdAt).toLocaleDateString("fr-FR", {
                       day: "numeric",
@@ -63,7 +97,12 @@ export default async function ContentPage({ params }: { params: { businessId: st
                     })}
                   </span>
                 </div>
-                <CopyButton text={c.body} />
+                <div className="flex items-center gap-2">
+                  <CopyButton text={c.body} />
+                  {c.type === "LINKEDIN_POST" && linkedinConnected && c.status !== "PUBLISHED" && (
+                    <PublishLinkedInButton contentId={c.id} />
+                  )}
+                </div>
               </div>
               <p className="mb-2 font-display text-sm font-medium text-primary">{c.title}</p>
               <p className="whitespace-pre-wrap text-sm text-secondary">{c.body}</p>
