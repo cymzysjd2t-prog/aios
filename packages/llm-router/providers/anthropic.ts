@@ -9,8 +9,10 @@ const PRICING: Record<string, { input: number; output: number }> = {
   "claude-haiku-4-5-20251001": { input: 0.8, output: 4 },
 };
 
+const DEFAULT_PRICING = { input: 3, output: 15 };
+
 function estimateCost(model: string, inputTokens: number, outputTokens: number) {
-  const rate = PRICING[model] ?? PRICING["claude-sonnet-5"];
+  const rate = PRICING[model] ?? PRICING["claude-sonnet-5"] ?? DEFAULT_PRICING;
   return (inputTokens / 1_000_000) * rate.input + (outputTokens / 1_000_000) * rate.output;
 }
 
