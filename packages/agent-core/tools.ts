@@ -314,11 +314,11 @@ export async function executeTool(call: ToolCall, ctx: ToolExecutionContext): Pr
         data: {
           pitch: call.input.positioning as string,
           branding: {
-            targetAudience: call.input.targetAudience,
-            competitors: call.input.competitors ?? [],
-            businessModel: call.input.businessModel,
-            primaryColor: call.input.brandPrimaryColor ?? "#6C5CE7",
-            tone: call.input.brandTone ?? null,
+            targetAudience: (call.input.targetAudience as string) ?? "",
+            competitors: (call.input.competitors as string[]) ?? [],
+            businessModel: (call.input.businessModel as string) ?? "",
+            primaryColor: (call.input.brandPrimaryColor as string) ?? "#6C5CE7",
+            tone: (call.input.brandTone as string) ?? null,
           },
         },
       });
