@@ -7,8 +7,10 @@ interface GithubFile {
 
 function parseRepoUrl(repoUrl: string): { owner: string; repo: string } | null {
   const match = repoUrl.match(/github\.com[/:]([^/]+)\/([^/.]+)(\.git)?\/?$/);
-  if (!match) return null;
-  return { owner: match[1], repo: match[2] };
+  const owner = match?.[1];
+  const repo = match?.[2];
+  if (!owner || !repo) return null;
+  return { owner, repo };
 }
 
 async function gh(path: string, token: string, init?: RequestInit) {
