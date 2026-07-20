@@ -1,5 +1,5 @@
 import { prisma, AgentRole, AgentStatus, RunStatus } from "@aios/db";
-import { complete } from "@aios/llm-router";
+import { complete, type ToolDefinition } from "@aios/llm-router";
 import { buildSystemPrompt } from "./prompt";
 import { TOOL_REGISTRY, executeTool, type ToolExecutionContext } from "./tools";
 
@@ -46,7 +46,7 @@ export async function runAgentInstance(params: RunAgentParams): Promise<void> {
       model: instance.definition.defaultModel,
       system,
       messages: [{ role: "user", content: goal }],
-      tools: tools.map((name) => TOOL_REGISTRY[name]).filter(Boolean),
+      tools: tools.map((name) => TOOL_REGISTRY[name]).filter((t): t is ToolDefinition => Boolean(t)),
       maxTokens: 2048,
     });
 
