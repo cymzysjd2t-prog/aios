@@ -23,8 +23,8 @@ export async function POST(req: Request) {
     data: {
       businessId: body.businessId,
       name: template.name,
-      trigger: template.trigger,
-      steps: template.steps,
+      trigger: JSON.parse(JSON.stringify(template.trigger)),
+      steps: JSON.parse(JSON.stringify(template.steps)),
       isActive: true,
     },
   });
